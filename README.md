@@ -30,3 +30,9 @@ await peer.handleIncomingAnswer(answer)
 // Gotten an ICE candidate through the signaling server
 await peer.handleIncomingICECandidate(candidate)
 ```
+
+## License
+
+Copyright 2021 Michiel van der Velde.
+
+This software is licensed under [the MIT License](LICENSE).
