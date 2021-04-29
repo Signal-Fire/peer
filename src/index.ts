@@ -4,13 +4,11 @@ export type ICECandidateEvent = CustomEvent<RTCIceCandidate>
 export type DataChannelEvent = CustomEvent<RTCDataChannel>
 
 export default class Peer extends EventTarget {
-  public readonly id: string
   public readonly connection: RTCPeerConnection
   private readonly dataChannels: Map<number, RTCDataChannel> = new Map()
 
-  public constructor (id: string, connection: RTCPeerConnection) {
+  public constructor (connection: RTCPeerConnection) {
     super()
-    this.id = id
     this.connection = connection
 
     this.handleNegotiationNeeded = this.handleNegotiationNeeded.bind(this)
