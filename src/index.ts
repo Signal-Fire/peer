@@ -1,7 +1,7 @@
 export type OfferEvent = CustomEvent<RTCSessionDescription>
 export type AnswerEvent = CustomEvent<RTCSessionDescription>
 export type ICECandidateEvent = CustomEvent<RTCIceCandidate>
-export type DataChannelEvent = CustomEvent<RTCDataChannel>
+export type DataChannelEvent = RTCDataChannelEvent
 export type TrackEvent = RTCTrackEvent
 
 export default class Peer extends EventTarget {
@@ -122,16 +122,14 @@ export default class Peer extends EventTarget {
     }
   }
 
-  private handleDataChannel ({ channel }: RTCDataChannelEvent) {
-    this.dataChannels.set(channel.id, channel)
+  private handleDataChannel (ev: RTCDataChannelEvent) {
+    this.dataChannels.set(ev.channel.id, ev.channel)
 
-    channel.addEventListener('close', () => {
-      this.dataChannels.delete(channel.id)
+    ev.channel.addEventListener('close', () => {
+      this.dataChannels.delete(ev.channel.id)
     }, { once: true })
 
-    this.dispatchEvent(new CustomEvent<RTCDataChannel>('data-channel', {
-      detail: channel
-    }))
+    this.dispatchEvent(ev)
   }
 
   private handleTrack (ev: RTCTrackEvent) {
