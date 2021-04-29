@@ -22,6 +22,7 @@ export default class Peer extends EventTarget {
     connection.addEventListener('datachannel', this.handleDataChannel)
   }
 
+  /** Create a new data channel. */
   public createDataChannel (label: string, dataChannelDict?: RTCDataChannelInit): RTCDataChannel {
     const channel = this.connection.createDataChannel(label, dataChannelDict)
 
@@ -54,6 +55,10 @@ export default class Peer extends EventTarget {
     return channel
   }
 
+  /**
+   * Handle an incoming offer.
+   * @param offer The session description representing the offer
+   */
   public async handleIncomingOffer (offer: RTCSessionDescription): Promise<void> {
     try {
       await this.connection.setRemoteDescription(offer)
@@ -70,6 +75,10 @@ export default class Peer extends EventTarget {
     }
   }
 
+  /**
+   * Handle an incoming answer.
+   * @param answer The session description representing the answer
+   */
   public async handleIncomingAnswer (answer: RTCSessionDescription): Promise<void> {
     try {
       await this.connection.setRemoteDescription(answer)
@@ -80,6 +89,10 @@ export default class Peer extends EventTarget {
     }
   }
 
+  /**
+   * Handle an incoming ICE candidate.
+   * @param candidate The ICE candidate
+   */
   public async handleIncomingICECandidate (candidate: RTCIceCandidate): Promise<void> {
     try {
       await this.connection.addIceCandidate(candidate)
