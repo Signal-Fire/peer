@@ -68,19 +68,13 @@ export default class Peer extends EventTarget {
    * @param offer The session description representing the offer
    */
   public async handleIncomingOffer (offer: RTCSessionDescription): Promise<void> {
-    try {
-      await this.connection.setRemoteDescription(offer)
-      const answer = await this.connection.createAnswer()
-      await this.connection.setLocalDescription(answer)
+    await this.connection.setRemoteDescription(offer)
+    const answer = await this.connection.createAnswer()
+    await this.connection.setLocalDescription(answer)
 
-      this.dispatchEvent(new CustomEvent<RTCSessionDescription>('answer', {
-        detail: this.connection.localDescription as RTCSessionDescription
-      }))
-    } catch (e) {
-      this.dispatchEvent(new CustomEvent<Error>('error', {
-        detail: e
-      }))
-    }
+    this.dispatchEvent(new CustomEvent<RTCSessionDescription>('answer', {
+      detail: this.connection.localDescription as RTCSessionDescription
+    }))
   }
 
   /**
@@ -88,13 +82,7 @@ export default class Peer extends EventTarget {
    * @param answer The session description representing the answer
    */
   public async handleIncomingAnswer (answer: RTCSessionDescription): Promise<void> {
-    try {
-      await this.connection.setRemoteDescription(answer)
-    } catch (e) {
-      this.dispatchEvent(new CustomEvent<Error>('error', {
-        detail: e
-      }))
-    }
+    return this.connection.setRemoteDescription(answer)
   }
 
   /**
@@ -102,27 +90,16 @@ export default class Peer extends EventTarget {
    * @param candidate The ICE candidate
    */
   public async handleIncomingICECandidate (candidate: RTCIceCandidate): Promise<void> {
-    try {
-      await this.connection.addIceCandidate(candidate)
-    } catch (e) {
-      this.dispatchEvent(new CustomEvent<Error>('error', {
-        detail: e
-      }))
-    }
+    return this.connection.addIceCandidate(candidate)
   }
 
   private async handleNegotiationNeeded (): Promise<void> {
-    try {
-      const offer = await this.connection.createOffer()
-      this.connection.setLocalDescription(offer)
-      this.dispatchEvent(new CustomEvent<RTCSessionDescription>('offer', {
-        detail: this.connection.localDescription as RTCSessionDescription
-      }))
-    } catch (e) {
-      this.dispatchEvent(new CustomEvent<Error>('error', {
-        detail: e
-      }))
-    }
+    const offer = await this.connection.createOffer()
+    await this.connection.setLocalDescription(offer)
+
+    this.dispatchEvent(new CustomEvent<RTCSessionDescription>('offer', {
+      detail: this.connection.localDescription as RTCSessionDescription
+    }))
   }
 
   private async handleICECandidate ({ candidate }: RTCPeerConnectionIceEvent): Promise<void> {
