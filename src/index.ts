@@ -2,6 +2,7 @@ export type OfferEvent = CustomEvent<RTCSessionDescription>
 export type AnswerEvent = CustomEvent<RTCSessionDescription>
 export type ICECandidateEvent = CustomEvent<RTCIceCandidate>
 export type DataChannelEvent = CustomEvent<RTCDataChannel>
+export type TrackEvent = RTCTrackEvent
 
 export default class Peer extends EventTarget {
   public readonly connection: RTCPeerConnection
@@ -15,11 +16,13 @@ export default class Peer extends EventTarget {
     this.handleICECandidate = this.handleICECandidate.bind(this)
     this.handleICEConnectionStateChange = this.handleICEConnectionStateChange.bind(this)
     this.handleDataChannel = this.handleDataChannel.bind(this)
+    this.handleTrack = this.handleTrack.bind(this)
 
     connection.addEventListener('negotiationneeded', this.handleNegotiationNeeded)
     connection.addEventListener('icecandidate', this.handleICECandidate)
     connection.addEventListener('iceconnectionstatechange', this.handleICEConnectionStateChange)
     connection.addEventListener('datachannel', this.handleDataChannel)
+    connection.addEventListener('track', this.handleTrack)
   }
 
   /** Create a new data channel. */
@@ -53,6 +56,11 @@ export default class Peer extends EventTarget {
     channel.addEventListener('close', handleErrorOrClose)
 
     return channel
+  }
+
+  /** Add a track to the peer connection. */
+  public addTrack (track: MediaStreamTrack, ...streams: MediaStream[]) {
+    this.connection.addTrack(track, ...streams)
   }
 
   /**
@@ -149,11 +157,16 @@ export default class Peer extends EventTarget {
     }))
   }
 
+  private handleTrack (ev: RTCTrackEvent) {
+    this.dispatchEvent(ev)
+  }
+
   private handleClose (): void {
     this.connection.removeEventListener('negotiationneeded', this.handleNegotiationNeeded)
     this.connection.removeEventListener('icecandidate', this.handleICECandidate)
     this.connection.removeEventListener('iceconnectionstatechange', this.handleICEConnectionStateChange)
     this.connection.removeEventListener('datachannel', this.handleDataChannel)
+    this.connection.removeEventListener('track', this.handleTrack)
 
     this.dispatchEvent(new Event('close'))
   }
