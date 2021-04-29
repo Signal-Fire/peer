@@ -19,7 +19,7 @@ peer.addEventListener('answer', ({ detail: answer }: AnswerEvent) => {
   // send the answer to the remote peer through the signaling server
 })
 
-peer.addEventListener('ice', ({ detail: candidate }: ICECandidateEvent) => {
+peer.addEventListener('ice', ({ candidate }: ICECandidateEvent) => {
   // send the ICE candidate to the remote peer through the signaling server
 })
 

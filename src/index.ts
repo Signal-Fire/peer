@@ -1,6 +1,6 @@
 export type OfferEvent = CustomEvent<RTCSessionDescription>
 export type AnswerEvent = CustomEvent<RTCSessionDescription>
-export type ICECandidateEvent = CustomEvent<RTCIceCandidate>
+export type ICECandidateEvent = RTCPeerConnectionIceEvent
 export type DataChannelEvent = RTCDataChannelEvent
 export type TrackEvent = RTCTrackEvent
 
@@ -102,15 +102,13 @@ export default class Peer extends EventTarget {
     }))
   }
 
-  private async handleICECandidate ({ candidate }: RTCPeerConnectionIceEvent): Promise<void> {
-    if (!candidate) {
+  private async handleICECandidate (ev: RTCPeerConnectionIceEvent): Promise<void> {
+    if (!ev.candidate) {
       // ICE gathering has ended
       return
     }
 
-    this.dispatchEvent(new CustomEvent<RTCIceCandidate>('ice', {
-      detail: candidate
-    }))
+    this.dispatchEvent(ev)
   }
 
   private handleICEConnectionStateChange (): void {
