@@ -11,15 +11,15 @@ import type { OfferEvent, AnswerEvent, ICECandidateEvent } from './index'
 const connection = new RTCPeerConnection()
 const peer = new Peer(connection)
 
-peer.addEventListener('offer', ({ detail }: OfferEvent) => {
+peer.addEventListener('offer', ({ detail: offer }: OfferEvent) => {
   // send the offer to the remote peer through the signaling server
 })
 
-peer.addEventListener('answer', ({ detail }: AnswerEvent) => {
+peer.addEventListener('answer', ({ detail: answer }: AnswerEvent) => {
   // send the answer to the remote peer through the signaling server
 })
 
-peer.addEventListener('ice', ({ detail }: ICECandidateEvent) => {
+peer.addEventListener('ice', ({ detail: candidate }: ICECandidateEvent) => {
   // send the ICE candidate to the remote peer through the signaling server
 })
 
