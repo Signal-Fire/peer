@@ -9,7 +9,7 @@ import Peer from './index'
 import type { OfferEvent, AnswerEvent, ICECandidateEvent } from './index'
 
 const connection = new RTCPeerConnection()
-const peer = new Peer('<id>', connection)
+const peer = new Peer(connection)
 
 peer.addEventListener('offer', ({ detail }: OfferEvent) => {
   // send the offer to the remote peer through the signaling server
