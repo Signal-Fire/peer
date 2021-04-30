@@ -6,7 +6,7 @@ Wrapper for the native `RTCPeerConnection` to make life a little easier.
 
 ```typescript
 import Peer from './index'
-import type { OfferEvent, AnswerEvent, ICECandidateEvent } from './index'
+import type { OfferEvent, AnswerEvent, ICECandidateEvent, DataChannelEvent } from './index'
 
 const connection = new RTCPeerConnection()
 const peer = new Peer(connection)
@@ -25,10 +25,16 @@ peer.addEventListener('icecandidate', ({ candidate }: ICECandidateEvent) => {
   }
 })
 
+peer.addEventListener('datachannel', ({ channel }: DataChannelEvent) => {
+  // do something with the channel
+})
+
 // Gotten an offer through the signaling server
 await peer.handleIncomingOffer(offer)
+
 // Gotten an answer through the signaling server
 await peer.handleIncomingAnswer(answer)
+
 // Gotten an ICE candidate through the signaling server
 await peer.handleIncomingICECandidate(candidate)
 ```
