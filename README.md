@@ -4,6 +4,8 @@ Wrapper for the native `RTCPeerConnection` to make life a little easier.
 
 > This is a work in progress and as such is not published to npm yet.
 
+## Example
+
 ```typescript
 import Peer from './index'
 import type { OfferEvent, AnswerEvent, ICECandidateEvent, DataChannelEvent } from './index'
