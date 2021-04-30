@@ -19,8 +19,10 @@ peer.addEventListener('answer', ({ detail: answer }: AnswerEvent) => {
   // send the answer to the remote peer through the signaling server
 })
 
-peer.addEventListener('ice', ({ candidate }: ICECandidateEvent) => {
-  // send the ICE candidate to the remote peer through the signaling server
+peer.addEventListener('icecandidate', ({ candidate }: ICECandidateEvent) => {
+  if (candidate) {
+    // send the ICE candidate to the remote peer through the signaling server
+  }
 })
 
 // Gotten an offer through the signaling server

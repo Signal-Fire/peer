@@ -103,11 +103,6 @@ export default class Peer extends EventTarget {
   }
 
   private async handleICECandidate (ev: RTCPeerConnectionIceEvent): Promise<void> {
-    if (!ev.candidate) {
-      // ICE gathering has ended
-      return
-    }
-
     this.dispatchEvent(ev)
   }
 
