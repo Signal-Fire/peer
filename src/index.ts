@@ -51,9 +51,13 @@ export default class Peer extends EventTarget {
       }
     }
 
-    channel.addEventListener('open', handleOpen)
-    channel.addEventListener('error', handleErrorOrClose)
-    channel.addEventListener('close', handleErrorOrClose)
+    if (channel.readyState !== 'open') {
+      channel.addEventListener('open', handleOpen)
+      channel.addEventListener('error', handleErrorOrClose)
+      channel.addEventListener('close', handleErrorOrClose)
+    } else {
+      handleOpen()
+    }
 
     return channel
   }
