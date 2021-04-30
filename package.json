@@ -1,7 +1,6 @@
 {
   "name": "@signal-fire/peer",
   "version": "0.0.1",
-  "private": true,
   "description": "Wrapper for the native RTCPeerConnection to make life a little easier",
   "main": "./dist/index.js",
   "author": "Michiel van der Velde <michiel@michielvdvelde.nl>",

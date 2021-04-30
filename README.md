@@ -2,7 +2,11 @@
 
 Wrapper for the native `RTCPeerConnection` to make life a little easier.
 
-> This is a work in progress and as such is not published to npm yet.
+## Install
+
+```
+> npm i @signal-fire/peer
+```
 
 ## Example
 
