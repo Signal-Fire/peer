@@ -67,6 +67,10 @@ export default class Peer extends EventTarget {
     this.connection.addTrack(track, ...streams)
   }
 
+  public close (): void {
+    this.connection.close()
+  }
+
   /**
    * Handle an incoming offer.
    * @param offer The session description representing the offer
