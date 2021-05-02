@@ -11,10 +11,16 @@ Wrapper for the native `RTCPeerConnection` to make life a little easier.
 ## Example
 
 ```typescript
-import Peer from './index'
-import type { OfferEvent, AnswerEvent, ICECandidateEvent, DataChannelEvent } from './index'
+import Peer, {
+  OfferEvent,
+  AnswerEvent,
+  ICECandidateEvent,
+  DataChannelEvent
+} from '@signal-fire/peer'
 
+// Create a new RTCPeerConnection to wrap
 const connection = new RTCPeerConnection()
+// Create a new peer from the connection
 const peer = new Peer(connection)
 
 peer.addEventListener('offer', ({ detail: offer }: OfferEvent) => {
