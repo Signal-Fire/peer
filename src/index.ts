@@ -40,6 +40,10 @@ export default class Peer extends EventTarget {
 
       if (channel.id) {
         this.dataChannels.set(channel.id, channel)
+
+        channel.addEventListener('close', () => {
+          this.dataChannels.delete(channel.id)
+        }, { once: true })
       }
     }
 
@@ -51,12 +55,12 @@ export default class Peer extends EventTarget {
       }
     }
 
-    if (channel.readyState !== 'open') {
+    if (channel.readyState === 'open') {
+      handleOpen()
+    } else {
       channel.addEventListener('open', handleOpen)
       channel.addEventListener('error', handleErrorOrClose)
       channel.addEventListener('close', handleErrorOrClose)
-    } else {
-      handleOpen()
     }
 
     return channel
