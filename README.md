@@ -22,7 +22,7 @@ const connection = new RTCPeerConnection()
 // Create a new peer from the connection
 const peer = new Peer(connection)
 
-peer.addEventListener('description', ({ detail: description }: SessionDescriptionEvent) => {
+peer.addEventListener('description', ({ description }: SessionDescriptionEvent) => {
   // send the description to the remote peer through the signaling server
 })
 
@@ -34,6 +34,9 @@ peer.addEventListener('icecandidate', ({ candidate }: ICECandidateEvent) => {
 
 // When we get a session description from the remote peer...
 await peer.setSessionDescription(description)
+
+// When we get an ICE candidate from the remote peer...
+await peer.addIceCandidate(candidate)
 ```
 
 ## License
