@@ -1,8 +1,13 @@
-export type OfferEvent = CustomEvent<RTCSessionDescription>
-export type AnswerEvent = CustomEvent<RTCSessionDescription>
-export type ICECandidateEvent = RTCPeerConnectionIceEvent
-export type DataChannelEvent = RTCDataChannelEvent
-export type TrackEvent = RTCTrackEvent
+export {
+  SessionDescriptionEvent,
+  IceCandidateEvent,
+  DataChannelEvent,
+  TrackEvent
+} from './events'
+
+import {
+  SessionDescriptionEvent
+} from './events'
 
 export default class Peer extends EventTarget {
   public readonly connection: RTCPeerConnection
@@ -13,14 +18,14 @@ export default class Peer extends EventTarget {
     this.connection = connection
 
     this.handleNegotiationNeeded = this.handleNegotiationNeeded.bind(this)
-    this.handleICECandidate = this.handleICECandidate.bind(this)
-    this.handleICEConnectionStateChange = this.handleICEConnectionStateChange.bind(this)
+    this.handleIceCandidate = this.handleIceCandidate.bind(this)
+    this.handleIceConnectionStateChange = this.handleIceConnectionStateChange.bind(this)
     this.handleDataChannel = this.handleDataChannel.bind(this)
     this.handleTrack = this.handleTrack.bind(this)
 
     connection.addEventListener('negotiationneeded', this.handleNegotiationNeeded)
-    connection.addEventListener('icecandidate', this.handleICECandidate)
-    connection.addEventListener('iceconnectionstatechange', this.handleICEConnectionStateChange)
+    connection.addEventListener('icecandidate', this.handleIceCandidate)
+    connection.addEventListener('iceconnectionstatechange', this.handleIceConnectionStateChange)
     connection.addEventListener('datachannel', this.handleDataChannel)
     connection.addEventListener('track', this.handleTrack)
   }
@@ -40,6 +45,10 @@ export default class Peer extends EventTarget {
 
       if (channel.id) {
         this.dataChannels.set(channel.id, channel)
+
+        channel.addEventListener('close', () => {
+          this.dataChannels.delete(channel.id as number)
+        }, { once: true })
       }
     }
 
@@ -51,12 +60,12 @@ export default class Peer extends EventTarget {
       }
     }
 
-    if (channel.readyState !== 'open') {
+    if (channel.readyState === 'open') {
+      handleOpen()
+    } else {
       channel.addEventListener('open', handleOpen)
       channel.addEventListener('error', handleErrorOrClose)
       channel.addEventListener('close', handleErrorOrClose)
-    } else {
-      handleOpen()
     }
 
     return channel
@@ -72,49 +81,57 @@ export default class Peer extends EventTarget {
   }
 
   /**
-   * Handle an incoming offer.
-   * @param offer The session description representing the offer
+   * Set a session description.
+   * @param description The session description
    */
-  public async handleIncomingOffer (offer: RTCSessionDescription): Promise<void> {
+  public async setSessionDescription (description: RTCSessionDescription): Promise<void> {
+    if (![ 'offer', 'answer' ].includes(description.type)) {
+      throw new Error(`unsupported description type: ${description.type}`)
+    }
+
+    if (description.type === 'offer') {
+      return this.handleOffer(description)
+    } else if (description.type === 'answer') {
+      return this.handleAnswer(description)
+    }
+  }
+
+  /**
+   * Add an ICE candidate.
+   * @param candidate The ICE candidate
+   */
+  public async addIceCandidate (candidate: RTCIceCandidate): Promise<void> {
+    return this.connection.addIceCandidate(candidate)
+  }
+
+  private async handleOffer (offer: RTCSessionDescription): Promise<void> {
     await this.connection.setRemoteDescription(offer)
     const answer = await this.connection.createAnswer()
     await this.connection.setLocalDescription(answer)
 
-    this.dispatchEvent(new CustomEvent<RTCSessionDescription>('answer', {
-      detail: this.connection.localDescription as RTCSessionDescription
-    }))
+    this.dispatchEvent(
+      new SessionDescriptionEvent(this.connection.localDescription as RTCSessionDescription)
+    )
   }
 
-  /**
-   * Handle an incoming answer.
-   * @param answer The session description representing the answer
-   */
-  public async handleIncomingAnswer (answer: RTCSessionDescription): Promise<void> {
+  private async handleAnswer (answer: RTCSessionDescription): Promise<void> {
     return this.connection.setRemoteDescription(answer)
-  }
-
-  /**
-   * Handle an incoming ICE candidate.
-   * @param candidate The ICE candidate
-   */
-  public async handleIncomingICECandidate (candidate: RTCIceCandidate): Promise<void> {
-    return this.connection.addIceCandidate(candidate)
   }
 
   private async handleNegotiationNeeded (): Promise<void> {
     const offer = await this.connection.createOffer()
     await this.connection.setLocalDescription(offer)
 
-    this.dispatchEvent(new CustomEvent<RTCSessionDescription>('offer', {
-      detail: this.connection.localDescription as RTCSessionDescription
-    }))
+    this.dispatchEvent(
+      new SessionDescriptionEvent(this.connection.localDescription as RTCSessionDescription)
+    )
   }
 
-  private async handleICECandidate (ev: RTCPeerConnectionIceEvent): Promise<void> {
+  private async handleIceCandidate (ev: RTCPeerConnectionIceEvent): Promise<void> {
     this.dispatchEvent(ev)
   }
 
-  private handleICEConnectionStateChange (): void {
+  private handleIceConnectionStateChange (): void {
     switch (this.connection.iceConnectionState) {
       case 'failed':
       case 'closed':
@@ -124,10 +141,10 @@ export default class Peer extends EventTarget {
   }
 
   private handleDataChannel (ev: RTCDataChannelEvent) {
-    this.dataChannels.set(ev.channel.id, ev.channel)
+    this.dataChannels.set(ev.channel.id as number, ev.channel)
 
     ev.channel.addEventListener('close', () => {
-      this.dataChannels.delete(ev.channel.id)
+      this.dataChannels.delete(ev.channel.id as number)
     }, { once: true })
 
     this.dispatchEvent(ev)
@@ -139,8 +156,8 @@ export default class Peer extends EventTarget {
 
   private handleClose (): void {
     this.connection.removeEventListener('negotiationneeded', this.handleNegotiationNeeded)
-    this.connection.removeEventListener('icecandidate', this.handleICECandidate)
-    this.connection.removeEventListener('iceconnectionstatechange', this.handleICEConnectionStateChange)
+    this.connection.removeEventListener('icecandidate', this.handleIceCandidate)
+    this.connection.removeEventListener('iceconnectionstatechange', this.handleIceConnectionStateChange)
     this.connection.removeEventListener('datachannel', this.handleDataChannel)
     this.connection.removeEventListener('track', this.handleTrack)
 
