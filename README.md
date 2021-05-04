@@ -12,9 +12,8 @@ Wrapper for the native `RTCPeerConnection` to make life a little easier.
 
 ```typescript
 import Peer, {
-  OfferEvent,
-  AnswerEvent,
-  ICECandidateEvent,
+  SessionDescriptionEvent
+  IceCandidateEvent,
   DataChannelEvent
 } from '@signal-fire/peer'
 
@@ -23,12 +22,8 @@ const connection = new RTCPeerConnection()
 // Create a new peer from the connection
 const peer = new Peer(connection)
 
-peer.addEventListener('offer', ({ detail: offer }: OfferEvent) => {
-  // send the offer to the remote peer through the signaling server
-})
-
-peer.addEventListener('answer', ({ detail: answer }: AnswerEvent) => {
-  // send the answer to the remote peer through the signaling server
+peer.addEventListener('description', ({ detail: description }: SessionDescriptionEvent) => {
+  // send the description to the remote peer through the signaling server
 })
 
 peer.addEventListener('icecandidate', ({ candidate }: ICECandidateEvent) => {
@@ -37,18 +32,8 @@ peer.addEventListener('icecandidate', ({ candidate }: ICECandidateEvent) => {
   }
 })
 
-peer.addEventListener('datachannel', ({ channel }: DataChannelEvent) => {
-  // do something with the channel
-})
-
-// Gotten an offer through the signaling server
-await peer.handleIncomingOffer(offer)
-
-// Gotten an answer through the signaling server
-await peer.handleIncomingAnswer(answer)
-
-// Gotten an ICE candidate through the signaling server
-await peer.handleIncomingICECandidate(candidate)
+// When we get a session description from the remote peer...
+await peer.setSessionDescription(description)
 ```
 
 ## License
